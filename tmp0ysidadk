@@ -200,7 +200,7 @@ def main(genomes, config):
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
-                quit()
+                # quit()
                 break
             
         pipe_ind = 0
@@ -226,29 +226,28 @@ def main(genomes, config):
         add_pipe = False
         for pipe in pipes:
             pipe.move()
-            for x, bird in enumerate(birds):
-                if pipe.collide(bird):
-                    ge[x].fitness -= 1
-                    birds.pop(x)
-                    nets.pop(x)
-                    ge.pop(x)
-
+            # check for collision
+            for bird in birds:
+                if pipe.collide(bird, win):
+                    ge[birds.index(bird)].fitness -= 1
+                    nets.pop(birds.index(bird))
+                    ge.pop(birds.index(bird))
+                    birds.pop(birds.index(bird))
+                    
+                if not pipe.passed and pipe.x < bird.x:
+                    pipe.passed = True
+                    add_pipe = True
             if pipe.x + pipe.PIPE_TOP.get_width() < 0:
                 rem.append(pipe)
-                
-            if not pipe.passed and pipe.x < bird.x:
-                pipe.passed = True
-                add_pipe = True
+            pipe.move()
             
         if add_pipe:
             score += 1
-            for genome in ge:
-                genome.fitness += 5
-            pipes.append(Pipe(WIN_WIDTH))
-            
+            for g in ge:
+                g.fitness += 5
+            pipes.append(Pipe(600))
         for r in rem:
             pipes.remove(r)
-            
         for x, bird in enumerate(birds):
             if bird.y + bird.img.get_height() <= 730 or bird.y < 0:
                 birds.pop(x)
